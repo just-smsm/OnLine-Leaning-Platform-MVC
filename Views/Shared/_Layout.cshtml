@@ -4,28 +4,17 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Online Learning Platform</title>
-    @* <link
-    rel="stylesheet"
-    href="~/css/site.css"
-    /> *@
-    @* font awesome *@
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    >
-    <link
-        rel="stylesheet"
-        href="~/lib/bootstrap/css/bootstrap.min.css"
-    />
-    <link
-        rel="stylesheet"
-        href="~/css/site.css"
-    />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <!-- Site-specific styles -->
+    <link rel="stylesheet" href="~/css/site.css" />
+
     <environment names="Development">
         @RenderSection("StyleSheets", false)
     </environment>
@@ -33,210 +22,95 @@
     {
         IgnoreSection("StyleSheets");
     }
-
 </head>
 
 <body>
     <header>
         <nav class="navbar navbar-expand-lg custom-navbar">
             <div class="container-fluid">
-                <a
-                    class="navbar-brand d-flex align-items-center"
-                    asp-controller="Home"
-                    asp-action="Index"
-                >
-                    <img
-                        src="~/img/logo.png.webp"
-                        alt="Logo"
-                        class="custom-logo"
-                    >
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <img src="~/img/logo.png.webp" alt="Logo" class="custom-logo">
                 </a>
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div
-                    class="collapse navbar-collapse"
-                    id="navbarSupportedContent"
-                >
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 custom-nav">
                         <li class="nav-item p-lg-2">
-                            <a
-                                class="nav-link"
-                                asp-controller="Home"
-                                asp-action="Index"
-                            >
-                                Home
-                            </a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
                         @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" &&
                         ViewContext.RouteData.Values["action"]?.ToString() == "Index")
                         {
                             <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link about-nav"
-                                    href="#about"
-                                >
-                                    About
-                                </a>
+                                <a class="nav-link about-nav" href="#about">About</a>
                             </li>
                             <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link contact-nav"
-                                    href="#contact"
-                                >
-                                    Contact
-                                </a>
+                                <a class="nav-link contact-nav" href="#contact">Contact</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item p-lg-2">
-                                <a
-                                    href=""
-                                    class="nav-link about-nav"
-                                    onclick="window.open(`${window.location.origin}/#about`, '_self'); return false;"
-                                >
-                                    About
-                                </a>
+                                <a href="" class="nav-link about-nav" onclick="window.open(`${window.location.origin}/#about`, '_self'); return false;">About</a>
                             </li>
                             <li class="nav-item p-lg-2">
-                                <a
-                                    href=""
-                                    class="nav-link contact-nav"
-                                    onclick="window.open(`${window.location.origin}/#contact`, '_self'); return false;"
-                                >
-                                    Contact
-                                </a>
+                                <a href="" class="nav-link contact-nav" onclick="window.open(`${window.location.origin}/#contact`, '_self'); return false;">Contact</a>
                             </li>
                         }
 
                         <li class="nav-item p-lg-2">
-                            <a
-                                class="nav-link"
-                                asp-controller="Course"
-                                asp-action="Index"
-                            >
-                                Courses
-                            </a>
+                            <a class="nav-link" asp-controller="Course" asp-action="Index">Courses</a>
                         </li>
+
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link"
-                                    asp-controller="Category"
-                                    asp-action="Index"
-                                >
-                                    Categories
-                                </a>
+                                <a class="nav-link" asp-controller="Category" asp-action="Index">Categories</a>
                             </li>
                             <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link"
-                                    asp-controller="Module"
-                                    asp-action="Index"
-                                >
-                                    Modules
-                                </a>
+                                <a class="nav-link" asp-controller="Module" asp-action="Index">Modules</a>
                             </li>
                             <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link"
-                                    asp-controller="Quiz"
-                                    asp-action="Index"
-                                >
-                                    Quizzes
-                                </a>
+                                <a class="nav-link" asp-controller="Quiz" asp-action="Index">Quizzes</a>
                             </li>
                         }
-                        else if (User.IsInRole("Student"))
+                        @if (User.IsInRole("Student"))
                         {
-                            @* <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link"
-                                    asp-controller="Enrollment"
-                                    asp-action="Index"
-                                >
-                                    My Enrollments
-                                </a>
-                            </li>
                             <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link"
-                                    asp-controller="StudentLesson"
-                                    asp-action="Index"
-                                >
-                                    My Lessons
-                                </a>
-                            </li> *@
-                            <li class="nav-item p-lg-2">
-                                <a
-                                    class="nav-link"
-                                    asp-controller="StudentQuizAttempt"
-                                    asp-action="Index"
-                                >
-                                    My Quizzes
-                                </a>
+                                <a class="nav-link" asp-controller="Quiz" asp-action="UserQuizzes">My Quizzes</a>
                             </li>
                         }
+
                     </ul>
 
                     <div class="register d-flex align-items-center">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
-                            <a
-                                class="nav-link p-lg-2 d-flex align-items-center"
-                                asp-controller="Account"
-                                asp-action="Profile"
-                            >
+                            <a class="nav-link p-lg-2 d-flex align-items-center" asp-controller="Account" asp-action="Profile">
                                 @if (ViewData["ProfilePictureUrl"] != null)
                                 {
-                                    <img
-                                        src="data:image/jpeg;base64,@ViewData["ProfilePictureUrl"]"
-                                        alt="Profile Picture"
-                                        class="profile-picture rounded-circle"
-                                    >
+                                    <img src="data:image/jpeg;base64,@ViewData["ProfilePictureUrl"]"
+                                         alt="Profile Picture"
+                                         class="profile-picture rounded-circle">
                                 }
                                 <span class="ms-2">@ViewData["FirstName"] @ViewData["LastName"]</span>
                             </a>
-                            <form
-                                asp-controller="Account"
-                                asp-action="Logout"
-                                method="post"
-                                class="d-inline"
-                            >
-                                <button
-                                    type="submit"
-                                    class="nav-link p-lg-2 btn-link"
-                                >
-                                    Logout
-                                </button>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="nav-link p-lg-2 btn-link">Logout</button>
                             </form>
                         }
                         else
                         {
-                            <a
-                                class="nav-link p-lg-2 mx-2"
-                                asp-controller="Account"
-                                asp-action="Login"
-                            >
-                                Login
-                            </a>
-                            <a
-                                class="nav-link p-lg-2"
-                                asp-controller="Account"
-                                asp-action="Register"
-                            >
-                                Register
-                            </a>
+                            <a class="nav-link p-lg-2 mx-2" asp-controller="Account" asp-action="Login">Login</a>
+                            <a class="nav-link p-lg-2" asp-controller="Account" asp-action="Register">Register</a>
                         }
                     </div>
                 </div>
@@ -248,100 +122,29 @@
         @RenderBody()
     </main>
 
-    @* custom footer *@
-
-    <footer
-        class="bg-body-tertiary text-center"
-        style="background-color: rgba(0, 0, 0, 0.05);"
-    >
-
+    <footer class="bg-body-tertiary text-center" style="background-color: rgba(0, 0, 0, 0.05);">
         <div class="container p-4 pb-0">
             <section class="mb-4">
-                <!-- Facebook -->
-                <a
-                    data-mdb-ripple-init
-                    class="btn text-white btn-floating m-1"
-                    style="background-color: #3b5998;"
-                    href="#!"
-                    role="button"
-                >
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-
-                <!-- Twitter -->
-                <a
-                    data-mdb-ripple-init
-                    class="btn text-white btn-floating m-1"
-                    style="background-color: #55acee;"
-                    href="#!"
-                    role="button"
-                >
-                    <i class="fab fa-twitter"></i>
-                </a>
-
-                <!-- Google -->
-                <a
-                    data-mdb-ripple-init
-                    class="btn text-white btn-floating m-1"
-                    style="background-color: #dd4b39;"
-                    href="#!"
-                    role="button"
-                >
-                    <i class="fab fa-google"></i>
-                </a>
-
-                <!-- Instagram -->
-                <a
-                    data-mdb-ripple-init
-                    class="btn text-white btn-floating m-1"
-                    style="background-color: #ac2bac;"
-                    href="#!"
-                    role="button"
-                >
-                    <i class="fab fa-instagram"></i>
-                </a>
-
-                <!-- Linkedin -->
-                <a
-                    data-mdb-ripple-init
-                    class="btn text-white btn-floating m-1"
-                    style="background-color: #0082ca;"
-                    href="#!"
-                    role="button"
-                >
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
-                <!-- Github -->
-                <a
-                    data-mdb-ripple-init
-                    class="btn text-white btn-floating m-1"
-                    style="background-color: #333333;"
-                    href="#!"
-                    role="button"
-                >
-                    <i class="fab fa-github"></i>
-                </a>
+                <a class="btn text-white btn-floating m-1" style="background-color: #3b5998;" href="#!" role="button"><i class="fab fa-facebook-f"></i></a>
+                <a class="btn text-white btn-floating m-1" style="background-color: #55acee;" href="#!" role="button"><i class="fab fa-twitter"></i></a>
+                <a class="btn text-white btn-floating m-1" style="background-color: #dd4b39;" href="#!" role="button"><i class="fab fa-google"></i></a>
+                <a class="btn text-white btn-floating m-1" style="background-color: #ac2bac;" href="#!" role="button"><i class="fab fa-instagram"></i></a>
+                <a class="btn text-white btn-floating m-1" style="background-color: #0082ca;" href="#!" role="button"><i class="fab fa-linkedin-in"></i></a>
+                <a class="btn text-white btn-floating m-1" style="background-color: #333333;" href="#!" role="button"><i class="fab fa-github"></i></a>
             </section>
         </div>
 
-        <!-- Copyright -->
-        <div
-            class="text-center p-3"
-            style="background-color: rgba(0, 0, 0, 0.05);"
-        >
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
             © @DateTime.Now.Year Copyright:
             <a class="text-body text-decoration-none">Online Learning Platform ❤️</a>
         </div>
-        <!-- Copyright -->
     </footer>
+
     <script src="~/lib/bootstrap/js/bootstrap.bundle.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script
-        src="~/js/site.js"
-        asp-append-version="true"
-    ></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", false)
 </body>
 

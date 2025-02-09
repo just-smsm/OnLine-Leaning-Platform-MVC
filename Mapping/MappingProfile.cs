@@ -16,5 +16,6 @@ public class MappingProfile : Profile {
         CreateMap<QuizQuestion, QuizQuestionViewModel>().ReverseMap();
         CreateMap<StudentLesson, StudentLessonViewModel>().ReverseMap();
         CreateMap<StudentQuizAttempt, StudentQuizAttemptViewModel>().ReverseMap();
+        
     }
 }

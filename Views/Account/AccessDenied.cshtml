@@ -1,0 +1,24 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Use your layout file if applicable
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="container mt-5 text-center">
+    <div class="card shadow-lg p-4">
+        <h1 class="text-danger">Access Denied</h1>
+        <p class="lead mt-3">
+            Sorry, you do not have the necessary permissions to access this page.
+        </p>
+        <p class="text-muted">
+            If you believe this is an error, please contact the administrator or check your account privileges.
+        </p>
+        <div class="mt-4">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                Return to Home Page
+            </a>
+            <a href="mailto:admin@yourwebsite.com" class="btn btn-secondary">
+                Contact Support
+            </a>
+        </div>
+    </div>
+</div>

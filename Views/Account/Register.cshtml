@@ -13,34 +13,38 @@
                 <div asp-validation-summary="All" class="text-danger"></div>
                 <div class="mb-3">
                     <label asp-for="FirstName" class="form-label"></label>
-                    <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" required/>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" required />
                     <span asp-validation-for="FirstName" class="text-danger"></span>
                 </div>
+
                 <div class="mb-3">
                     <label asp-for="LastName" class="form-label"></label>
-                    <input asp-for="LastName" class="form-control" placeholder="Enter your last name" required/>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter your last name" required />
                     <span asp-validation-for="LastName" class="text-danger"></span>
                 </div>
+
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" placeholder="Enter your email" required/>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" required />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
+
                 <div class="mb-3 position-relative">
                     <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" type="password" class="form-control password-toggle" placeholder="Enter your password" required minlength="6"/>
+                    <input asp-for="Password" type="password" class="form-control password-toggle" placeholder="Enter your password" required minlength="6" />
                     <span asp-validation-for="Password" class="text-danger"></span>
-                    <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y pe-3 toggle-password" style="cursor: pointer;"></i>
                 </div>
+
                 <div class="mb-3 position-relative">
                     <label asp-for="ConfirmPassword" class="form-label"></label>
-                    <input asp-for="ConfirmPassword" type="password" class="form-control password-toggle" placeholder="Confirm your password" required/>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control password-toggle" placeholder="Confirm your password" required />
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                    <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y pe-3 toggle-password" style="cursor: pointer;"></i>
                 </div>
+
                 <div class="d-grid">
-                    <button type="button" class="btn btn-primary" onclick="validateAndSubmit()">Register</button>
+                    <button type="submit" class="btn btn-primary">Register</button>
                 </div>
+
             </form>
         </div>
     </div>
@@ -65,66 +69,4 @@
     </div>
 </div>
 
-<!-- Bootstrap Modal for Welcome Notification -->
-<div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="welcomeModalLabel">Welcome!</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Welcome to our platform! Your account has been successfully created.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="redirectToHome()">Go to Home</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-<script>
-    // Function to validate email existence and submit form
-    function validateAndSubmit() {
-        var email = $('#Email').val();
-        var form = $('#registerForm');
-
-        $.ajax({
-            url: '@Url.Action("Register", "Account")',
-            type: 'POST',
-            data: form.serialize(),
-            success: function (response) {
-                if (response.emailExists) {
-                    // Show modal if email is already registered
-                    var emailModal = new bootstrap.Modal(document.getElementById('emailExistsModal'));
-                    emailModal.show();
-                } else if (response.success) {
-                    // Show welcome modal if registration is successful
-                    var welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
-                    welcomeModal.show();
-                }
-            },
-            error: function () {
-                console.log("Error validating email");
-            }
-        });
-    }
-
-    // Function to toggle password visibility
-    document.querySelectorAll('.toggle-password').forEach(item => {
-        item.addEventListener('click', event => {
-            const passwordField = item.previousElementSibling;
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            item.classList.toggle('bi-eye');
-            item.classList.toggle('bi-eye-slash');
-        });
-    });
-
-    // Function to redirect to home page after successful registration
-    function redirectToHome() {
-        window.location.href = '@Url.Action("Index", "Home")';
-    }
-</script>

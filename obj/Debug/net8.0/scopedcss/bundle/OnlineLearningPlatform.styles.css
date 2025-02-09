@@ -1,0 +1,78 @@
+/* _content/OnlineLearningPlatform/Views/Home/Index.cshtml.rz.scp.css */
+/* General Page Styles */
+.container[b-rf3v2wnblp] {
+    padding: 20px;
+}
+
+/* Hero Section */
+.jumbotron[b-rf3v2wnblp] {
+    background-color: #f8f9fa;
+    padding: 2rem 1rem;
+    border-radius: 0.3rem;
+}
+
+.jumbotron h1.display-4[b-rf3v2wnblp] {
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+.jumbotron p.lead[b-rf3v2wnblp] {
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+/* Search and Filter Section */
+#search-query[b-rf3v2wnblp] {
+    margin-bottom: 1rem;
+}
+
+#category-filter[b-rf3v2wnblp] {
+    margin-bottom: 1rem;
+}
+
+/* Categories Section */
+h2[b-rf3v2wnblp] {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Cards for Categories and Courses */
+.card[b-rf3v2wnblp] {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-body[b-rf3v2wnblp] {
+    padding: 1.25rem;
+}
+
+.card-title[b-rf3v2wnblp] {
+    margin-bottom: 1.25rem;
+}
+
+.card-text[b-rf3v2wnblp] {
+    font-size: 0.875rem;
+}
+
+.btn-primary[b-rf3v2wnblp] {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Adjustments for small devices */
+@media (max-width: 768px) {
+    .jumbotron[b-rf3v2wnblp] {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .row[b-rf3v2wnblp] {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .col-md-4[b-rf3v2wnblp] {
+        margin-bottom: 1rem;
+    }
+}
+/* _content/OnlineLearningPlatform/Views/Shared/_Layout.cshtml.rz.scp.css */

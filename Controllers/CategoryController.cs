@@ -27,19 +27,25 @@ public class CategoryController : BaseController
     }
 
     // GET: Category
+    // GET: Category
     [AllowAnonymous]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var categories = _db.Categories.Get();
+        // Fetch categories and map them to ViewModels
+        var categories =  _db.Categories.Get(); // Ensure this is async
         var categoryViewModels = _mapper.Map<IEnumerable<CategoryViewModel>>(categories);
 
-        // get the courses related to each category
-        var listOfCourses = _db.Courses.Get();
-        var courseViewModels = _mapper.Map<IEnumerable<CourseViewModel>>(listOfCourses);
+        // Fetch courses and pass them to the view through ViewData
+        var courses =  _db.Courses.Get(); // Ensure this is async
+        var courseViewModels = _mapper.Map<IEnumerable<CourseViewModel>>(courses);
+
         ViewData["CoursesList"] = courseViewModels;
+
         return View(categoryViewModels);
     }
 
+
+    
     // GET: Category/Details/5
     public IActionResult Details(int? id)
     {

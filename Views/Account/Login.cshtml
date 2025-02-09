@@ -12,25 +12,25 @@
             <form asp-action="Login" method="post" id="loginForm">
                 <div asp-validation-summary="All" class="text-danger"></div>
                 <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" placeholder="Enter your email" aria-describedby="emailHelp" required/>
-
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" required />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" required minlength="6"/>
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" required minlength="6" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
+                
                 <div class="d-grid">
-                    <button type="button" class="btn btn-primary" onclick="validateAndSubmit()">Login</button>
+                    <button type="submit" class="btn btn-primary" id="loginButton">Login</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap Modal for Email Not Found -->
+<!-- Email Not Found Modal -->
 <div class="modal fade" id="emailNotFoundModal" tabindex="-1" aria-labelledby="emailNotFoundModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -43,39 +43,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a asp-action="Register" asp-controller="Account" class="btn btn-primary">
-                    Register
-                </a>
+                <a asp-action="Register" asp-controller="Account" class="btn btn-primary">Register</a>
             </div>
         </div>
     </div>
 </div>
 
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-<script>
-    // Function to validate email existence and submit form
-    function validateAndSubmit() {
-        var email = $('#Email').val();
-        var form = $('#loginForm');
 
-        $.ajax({
-            url: '@Url.Action("Login", "Account")',
-            type: 'POST',
-            data: form.serialize(),
-            success: function (response) {
-                if (response.emailExists === false) {
-                    // Show modal if email does not exist
-                    var modal = new bootstrap.Modal(document.getElementById('emailNotFoundModal'));
-                    modal.show();
-                } else {
-                    // Submit the form if the email exists
-                    form.off('submit').submit();
-                }
-            },
-            error: function () {
-                console.log("Error validating email");
-            }
-        });
-    }
-</script>

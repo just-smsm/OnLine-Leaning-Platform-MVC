@@ -28,19 +28,65 @@ public class CourseController : BaseController
         _mapper = mapper;
         _authorizationService = authorizationService;
     }
-
-    // GET: Course
     [AllowAnonymous]
-    public IActionResult Index()
+    [Route("Course/ByCategory/{categoryId}")]
+    public async Task<IActionResult> ByCategory(int categoryId)
     {
-        var courses = _db.Courses.Get();
-        var courseViewModels = _mapper.Map<IEnumerable<CourseViewModel>>(courses);
+        if (categoryId <= 0)
+        {
+            TempData["Error"] = "Invalid category ID.";
+            return RedirectToAction("Index", "Home");
+        }
 
-        var categories = _db.Categories.Get();
-        ViewData["Categories"] = _mapper.Map<IEnumerable<CategoryViewModel>>(categories);
+        var courses = await _db.Courses.GetAsyncByCategoryId(categoryId);
+
+        if (courses == null || !courses.Any())
+        {
+            TempData["Error"] = "No courses found for the selected category.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Manually map Course to CourseViewModel
+        var courseViewModels = courses.Select(course => new CourseViewModel
+        {
+            Id = course.Id,
+            Name = course.Name,
+            Description = course.Description,
+            Price = course.Price,
+            ImageUrl = course.ImageUrl,
+            CategoryId = course.CategoryId
+        }).ToList();
 
         return View(courseViewModels);
     }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> Index()
+    {
+        // Fetch courses asynchronously and map them to the ViewModel
+        var courses = await _db.Courses.GetAllAsync();
+        var courseViewModels = new List<GetAllCourseViewModel>();
+
+        foreach (var course in courses)
+        {
+            var category = await _db.Categories.GetCategoryByID(course.CategoryId);
+            courseViewModels.Add(new GetAllCourseViewModel
+            {
+                CategoryName = category.Name ,
+                Description = course.Description,
+                Id = course.Id,
+                ImageUrl = course.ImageUrl,
+                IsProgressLimited = course.IsProgressLimited,
+                Name = course.Name,
+                Price = course.Price,
+                CategoryId = course.Category.Id // To match with the category list in ViewData
+            });
+        }
+
+        return View(courseViewModels);
+    }
+
+
 
     // GET: Course
     [AllowAnonymous]
@@ -237,25 +283,5 @@ public class CourseController : BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpGet]
-    public IActionResult SearchCourses(string query)
-    {
-        var categories = _db.Categories.Get();
-        var courses = _db.Courses.Get()
-            .Where(c => c.Name.Contains(query) || c.Description.Contains(query))
-            .Select(c => new CourseViewModel
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                Price = c.Price,
-                IsProgressLimited = c.IsProgressLimited,
-                CategoryId = c.CategoryId,
-                ImageUrl = c.ImageUrl
-            })
-            .ToList();
-
-        return PartialView("_CourseListPartial", courses);
-    }
-
+    
 }

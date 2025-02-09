@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OnlineLearningPlatform.Context.Identity;
 using OnlineLearningPlatform.Models;
 using OnlineLearningPlatform.ModelsConfiguration;
+using System.Reflection.Emit;
 
 namespace OnlineLearningPlatform.Context;
 
@@ -56,5 +57,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
                 v => v == null ? null : Convert.ToBase64String(v),
                 v => v == null ? null : Convert.FromBase64String(v)
             );
+        builder.Entity<StudentQuizAttempt>(entity =>
+        {
+            
+            entity.Property(e => e.Id)
+                  .ValueGeneratedOnAdd(); // Configure auto-increment (identity)
+        });
     }
 }

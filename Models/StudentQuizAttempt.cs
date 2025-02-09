@@ -3,6 +3,7 @@ using OnlineLearningPlatform.Context.Identity;
 namespace OnlineLearningPlatform.Models;
 
 public class StudentQuizAttempt {
+    public int Id { get; set; }
     public string StudentId { get; set; } = default!;
     public int QuizId { get; set; }
     public DateTime AttemptDatetime { get; set; }

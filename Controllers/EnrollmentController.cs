@@ -38,6 +38,40 @@ public class EnrollmentController : BaseController {
         return View(enrollments);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetUserCourses(string userID)
+    {
+        if (string.IsNullOrEmpty(userID))
+        {
+            // Handle invalid or missing user ID
+            TempData["Error"] = "User ID is required.";
+            return RedirectToAction("Error", "Home");
+        }
+
+        try
+        {
+            // Fetch user's courses from the service or database
+            var courses = await _db.Enrollments.GetUserCoursesByUserID(userID);
+
+            if (courses == null || !courses.Any())
+            {
+                TempData["Error"] = "No courses found for this user.";
+                return RedirectToAction("Error", "Home");
+            }
+
+            // Return the courses to a view (assume a "UserCourses" view exists)
+            return View("UserCourses", courses);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception and redirect to a general error page
+            TempData["Error"] = "An error occurred while retrieving courses.";
+            TempData["ErrorDetails"] = ex.Message;
+            return RedirectToAction("Error", "Home");
+        }
+    }
+
+
     // GET: Enrollment/Create
     [Authorize(Roles = "Student")]
     public IActionResult Create(int courseId) {

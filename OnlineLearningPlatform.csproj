@@ -7,35 +7,34 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="12.0.0"/>
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0"/>
-        <PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.413"/>
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7"/>
+        <PackageReference Include="AutoMapper" Version="12.0.0" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+        <PackageReference Include="LigerShark.WebOptimizer.Core" Version="3.0.413" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3"/>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
         <PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Stripe.net" Version="45.7.0-beta.1"/>
+        <PackageReference Include="Stripe.net" Version="45.7.0-beta.1" />
     </ItemGroup>
 
 
     <ItemGroup>
-        <Folder Include="Views\Account\"/>
-        <Folder Include="Views\Enrollment\"/>
-        <Folder Include="Views\Lesson\"/>
-        <Folder Include="Views\QuizAnswer\"/>
+        <Folder Include="Views\Enrollment\" />
+        <Folder Include="Views\Lesson\" />
+        <Folder Include="Views\QuizAnswer\" />
     </ItemGroup>
 
 

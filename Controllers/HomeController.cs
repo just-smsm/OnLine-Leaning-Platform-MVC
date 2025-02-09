@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineLearningPlatform.Context.Identity;
@@ -24,7 +25,7 @@ public class HomeController : BaseController {
         _db = unitOfWork;
         _mapper = mapper;
     }
-
+    [AllowAnonymous]
     public IActionResult Index() {
         var courses = _db.Courses.Get();
 

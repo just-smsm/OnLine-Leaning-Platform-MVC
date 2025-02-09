@@ -50,24 +50,48 @@
             Categories
         </h2>
         <div class="row mb-5 mt-4 container-fluid g-4">
-            @foreach (var category in ViewBag.Categories) {
-                @if(category.Name != ""){
-                <div class="col-md-4 d-flex align-items-stretch">
-                    <div class="card custom-category-card h-100">
-                        <div class="card-body text-center card-category d-flex flex-column justify-content-center">
-                            <a
-                                class="card-title custom-card-category-title text-decoration-none"
-                                asp-action="Details"
-                                asp-controller="Category"
-                                asp-route-id="@category.Id">
-                                @category.Name
-                            </a>
+            @if (categories != null)
+            {
+                @foreach (var category in categories)
+                {
+                    if (!string.IsNullOrEmpty(category?.Name) && category?.Id != null)
+                    {
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="card custom-category-card h-100">
+                                <div class="card-body text-center card-category d-flex flex-column justify-content-center">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <!-- Admins go to CategoryController's Details action -->
+                                        <a class="card-title custom-card-category-title text-decoration-none"
+                                           asp-action="Details"
+                                           asp-controller="Category"
+                                           asp-route-id="@category.Id">
+                                            @category.Name
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <!-- Non-admins go to CourseController's ByCategory action -->
+                                        <a class="card-title custom-card-category-title text-decoration-none"
+                                           asp-action="ByCategory"
+                                           asp-controller="Course"
+                                           asp-route-categoryId="@category.Id">
+                                            @category.Name
+                                        </a>
+                                    }
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    }
                 }
             }
+            else
+            {
+                <p>No categories available.</p>
+            }
         </div>
+
+
     </section>
 </div>
 

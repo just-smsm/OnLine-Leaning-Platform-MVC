@@ -2,6 +2,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OnlineLearningPlatform.Context;
 using OnlineLearningPlatform.Context.Identity;
 using OnlineLearningPlatform.Models;
 using OnlineLearningPlatform.Repositories;
@@ -15,14 +17,14 @@ public class QuizController : BaseController
     private readonly IUnitOfWork _db;
     private readonly IMapper _mapper;
     IAuthorizationService _authorizationService;
-
+    private readonly ApplicationDbContext dbContext;
     private readonly UserManager<ApplicationUser> _userManager;
 
     public QuizController(
         IUnitOfWork unitOfWork,
         IMapper mapper,
         UserManager<ApplicationUser> userManager,
-        IAuthorizationService authorizationService
+        IAuthorizationService authorizationService,ApplicationDbContext dbContext
     )
         : base(userManager)
     {
@@ -30,6 +32,7 @@ public class QuizController : BaseController
         _mapper = mapper;
         _userManager = userManager;
         _authorizationService = authorizationService;
+        this.dbContext = dbContext;
     }
 
     public IActionResult Index()
@@ -50,105 +53,183 @@ public class QuizController : BaseController
     [HttpGet]
     public IActionResult Details(int id)
     {
-        var quiz = _db.Quizzes.GetByID(id);
-        var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
-
-        // Check if user is authorized
-        var authorizationResult = _authorizationService
-            .AuthorizeAsync(User, quiz.CourseId, "EnrolledInCourse")
-            .Result;
-        if (!authorizationResult.Succeeded && !User.IsInRole("Admin"))
+        try
         {
-            return RedirectToAction("Create", "Enrollment", new { courseId = quiz.CourseId });
+            // Fetch the quiz by its ID
+            var quiz = _db.Quizzes.GetByID(id);
+            if (quiz == null)
+            {
+                return RedirectToAction("Error", new { message = "Quiz not found." });
+            }
+
+            // Check if user is authorized to access the quiz
+            var authorizationResult = _authorizationService
+                .AuthorizeAsync(User, quiz.CourseId, "EnrolledInCourse")
+                .Result;
+
+            if (!authorizationResult.Succeeded && !User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Create", "Enrollment", new { courseId = quiz.CourseId });
+            }
+
+            // Fetch and shuffle questions for the quiz
+            var questions = _db.QuizQuestions.Get(q => q.QuizId == id).ToList();
+            var shuffledQuestions = questions.OrderBy(q => Guid.NewGuid()).ToList();
+            ViewData["Questions"] = _mapper.Map<IEnumerable<QuizQuestionViewModel>>(shuffledQuestions);
+
+            // Fetch and shuffle answers for each question
+            var answerViewModels = new List<QuizAnswerViewModel>();
+            foreach (var question in shuffledQuestions)
+            {
+                var answers = _db.QuizAnswers.Get(a => a.QuestionId == question.Id).ToList();
+                var shuffledAnswers = answers.OrderBy(a => Guid.NewGuid()).ToList();
+                answerViewModels.AddRange(_mapper.Map<IEnumerable<QuizAnswerViewModel>>(shuffledAnswers));
+            }
+            ViewData["Answers"] = answerViewModels;
+
+            // Map the quiz to its ViewModel and pass it to the view
+            var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
+            return View(quizViewModel);
         }
-
-        // Get questions related to this quiz
-        var questions = _db.QuizQuestions.Get(q => q.QuizId == id).ToList();
-        var shuffledQuestions = questions.OrderBy(q => Guid.NewGuid()).ToList();
-        ViewData["Questions"] = _mapper.Map<IEnumerable<QuizQuestionViewModel>>(shuffledQuestions);
-
-        // Get the answers related to this quiz
-        var answerViewModels = new List<QuizAnswerViewModel>();
-        foreach (var question in shuffledQuestions)
+        catch (Exception ex)
         {
-            var answers = _db.QuizAnswers.Get(a => a.QuestionId == question.Id).ToList();
-            var shuffledAnswers = answers.OrderBy(a => Guid.NewGuid()).ToList();
-            answerViewModels.AddRange(
-                _mapper.Map<IEnumerable<QuizAnswerViewModel>>(shuffledAnswers)
-            );
+           
+            return RedirectToAction("Error", new { message = "An error occurred while loading the quiz details." });
         }
-        ViewData["Answers"] = answerViewModels;
-
-        return View(quizViewModel);
     }
 
-    // POST: Quiz/Details/5
     [HttpPost]
-    public IActionResult Details(int id, Dictionary<int, int> Answers)
+    public async Task<IActionResult> Details(int id, Dictionary<int, int> Answers)
     {
-        var quiz = _db.Quizzes.GetByID(id);
-        var questions = _db.QuizQuestions.Get(q => q.QuizId == id);
-
-        // Calculate score
-        int correctAnswers = 0;
-        foreach (var question in questions)
+        try
         {
-            if (Answers.TryGetValue(question.Id, out int selectedAnswerId))
+            // Validate input
+            if (Answers == null || !Answers.Any())
             {
-                var correctAnswer = _db
-                    .QuizAnswers.Get(a => a.QuestionId == question.Id && a.IsCorrect)
-                    .FirstOrDefault();
-                if (correctAnswer != null && correctAnswer.Id == selectedAnswerId)
+                return RedirectToAction("Error", new { message = "No answers submitted." });
+            }
+
+            // Fetch quiz by ID
+            var quiz = _db.Quizzes.GetByID(id);
+            if (quiz == null)
+            {
+                return RedirectToAction("Error", new { message = "Quiz not found." });
+            }
+
+            // Validate MinPassScore
+            if (quiz.MinPassScore == null || quiz.MinPassScore > 100 || quiz.MinPassScore < 0)
+            {
+                return RedirectToAction("Error", new { message = "Quiz minimum passing score is not valid." });
+            }
+
+            // Fetch questions for the quiz
+            var questions = _db.QuizQuestions.Get(q => q.QuizId == id).ToList();
+            if (!questions.Any())
+            {
+                return RedirectToAction("Error", new { message = "No questions found for this quiz." });
+            }
+
+            // Get user ID
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Error", new { message = "User is not authenticated." });
+            }
+
+            // Calculate correct answers
+            int correctAnswers = 0;
+            foreach (var question in questions)
+            {
+                if (Answers.TryGetValue(question.Id, out int selectedAnswerId))
                 {
-                    correctAnswers++;
+                    var correctAnswer = _db.QuizAnswers.Get(a => a.QuestionId == question.Id && a.IsCorrect).FirstOrDefault();
+                    if (correctAnswer != null && correctAnswer.Id == selectedAnswerId)
+                    {
+                        correctAnswers++;
+                    }
                 }
             }
-        }
 
-        // Convert score to percentage
-        double percentage = (double)correctAnswers / questions.Count() * 100;
+            // Calculate score percentage
+            double percentage = Math.Round((double)correctAnswers / questions.Count * 100, 2);
 
-        // Determine if the student passed
-        bool isPassed = percentage >= quiz.MinPassScore;
+            // Determine if the student passed
+            bool isPassed = percentage >= quiz.MinPassScore;
 
-        // Get user ID
-        var userId = _userManager.GetUserId(User);
+            // Record attempt
+            var attempt = new StudentQuizAttempt
+            {
+                StudentId = userId,
+                QuizId = id,
+                AttemptDatetime = DateTime.Now,
+                ScoreAchieved = (int)percentage // Use the percentage score
+            };
 
-        // Ensure user exists
-        var userExists = _userManager.Users.Any(u => u.Id == userId);
-        if (!userExists)
-        {
-            return RedirectToAction("Error", new { message = "User does not exist." });
-        }
-
-        // Store the student's attempt
-        var attempt = new StudentQuizAttempt
-        {
-            StudentId = userId ?? string.Empty,
-            QuizId = id,
-            AttemptDatetime = DateTime.Now,
-            ScoreAchieved = (int)percentage,
-        };
-
-        // Save the attempt in the database
-        _db.StudentQuizAttempts.Insert(attempt);
-
-        var authorizationResult = _authorizationService
-            .AuthorizeAsync(User, quiz.CourseId, "EnrolledInCourse")
-            .Result;
-        if (!authorizationResult.Succeeded && !User.IsInRole("Admin"))
-        {
+            // Save the attempt to the database
+            _db.StudentQuizAttempts.Insert(attempt);
             _db.SaveChanges();
-        }
 
-        // Redirect based on pass/fail
-        if (isPassed)
-        {
-            return RedirectToAction("Passed", new { id = attempt.QuizId });
+            // Fetch the saved attempt using the async method
+            var result = await _db.StudentQuizAttempts.GetBYIncrementId(attempt.StudentId, attempt.QuizId, attempt.Id);
+
+            if (result == null)
+            {
+                return RedirectToAction("Error", new { message = "Quiz attempt could not be found." });
+            }
+
+            // Redirect based on result
+            return isPassed
+                ? RedirectToAction("Passed", new { id = result.Id }) // Use the auto-incremental Id
+                : RedirectToAction("Failed", new { id = result.Id }); // Use the auto-incremental Id
         }
-        else
+        catch (Exception ex)
         {
-            return RedirectToAction("Failed", new { id = attempt.QuizId });
+            return RedirectToAction("Error", new { message = "An error occurred while submitting your quiz attempt." });
+        }
+    }
+    [HttpGet]
+    [Authorize(Roles = "Student")] // Ensure only students can access this action
+    public async Task<IActionResult> UserQuizzes()
+    {
+        try
+        {
+            // Get the authenticated user's ID
+            var studentId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(studentId))
+            {
+                ViewBag.Error = "User not authenticated.";
+                return View("Error");
+            }
+
+            // Fetch quizzes for the authenticated student
+            var quizzes = await dbContext.StudentQuizAttempts
+                .Where(q => q.StudentId == studentId)
+                .Select(q => new UserQuizViewModel
+                {
+                    QuizId = q.QuizId,
+                    QuizName = q.Quiz.Name, // Assuming navigation property Quiz
+                    ScoreAchieved = q.ScoreAchieved,
+                    AttemptDate = q.AttemptDatetime
+                })
+                .ToListAsync();
+
+            // If no quizzes are found, return an empty view
+            if (!quizzes.Any())
+            {
+                ViewBag.Message = "No quizzes found.";
+                return View(new List<UserQuizViewModel>());
+            }
+
+            // Return the quizzes to the view
+            return View(quizzes);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            Console.WriteLine($"Error fetching quizzes: {ex.Message}");
+            ViewBag.Error = "An error occurred while retrieving quizzes.";
+            return View("Error");
         }
     }
 
@@ -156,7 +237,7 @@ public class QuizController : BaseController
     {
         var result = _db
             .StudentQuizAttempts.Get(st =>
-                st.QuizId == id && st.StudentId == _userManager.GetUserId(User)
+                st.Id == id && st.StudentId == _userManager.GetUserId(User)
             )
             .ElementAt(0);
         return View(result);
@@ -164,13 +245,23 @@ public class QuizController : BaseController
 
     public IActionResult Failed(int id)
     {
-        var result = _db
+        var attempts = _db
             .StudentQuizAttempts.Get(st =>
-                st.QuizId == id && st.StudentId == _userManager.GetUserId(User)
+                st.Id == id && st.StudentId == _userManager.GetUserId(User)
             )
-            .ElementAt(0);
+            .ToList();
+
+        if (attempts.Count == 0)
+        {
+            // Handle the case where no attempts are found
+            // Redirect to an appropriate page or display an error message
+            return RedirectToAction("Error", "Home", new { message = "No attempts found for this quiz." });
+        }
+
+        var result = attempts.First(); // Safely access the first element
         return View(result);
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
